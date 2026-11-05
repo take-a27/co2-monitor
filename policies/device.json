@@ -1,0 +1,15 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": "arn:aws:iot:<REGION>:<ACCOUNT_ID>:client/co2-pi-01"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iot:Publish",
+      "Resource": "arn:aws:iot:<REGION>:<ACCOUNT_ID>:topic/devices/co2-pi-01/telemetry"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+RecipeFormatVersion: '2020-01-25'
+ComponentName: com.example.Co2Device
+ComponentVersion: '<VERSION>'
+ComponentDescription: Reads CO2/temperature/humidity from SCD41 and publishes to AWS IoT Core.
+ComponentPublisher: co2-monitor
+Manifests:
+  - Platform:
+      os: linux
+      architecture: aarch64
+    Lifecycle:
+      run: |
+        set -a
+        . /etc/co2-monitor/device.env
+        set +a
+        exec {artifacts:path}/co2-device
+    Artifacts:
+      - Uri: s3://<BUCKET>/co2-device/<VERSION>/co2-device
+        Permission:
+          Execute: OWNER

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CO₂ Monitor</title>
+<style>
+  :root { --bg:#f4f5f7; --card:#fff; --text:#1d2330; --muted:#6b7280;
+          --good:#15803d; --warn:#b45309; --bad:#b91c1c; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--text);
+         font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif; }
+  h1 { font-size:1.1rem; margin:0 0 12px; }
+  .notice { padding:12px; border-radius:8px; background:#fff3cd; margin-bottom:12px; }
+  .card { background:var(--card); border-radius:12px; padding:16px; margin-bottom:12px;
+          box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .card.stale { opacity:.55; }
+  .head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .device { font-weight:600; }
+  .badge { font-size:.75rem; padding:2px 8px; border-radius:999px; color:#fff; }
+  .badge.mock { background:#7c3aed; }
+  .badge.stale { background:var(--bad); }
+  .co2 { font-size:3rem; font-weight:700; margin:8px 0 0; }
+  .co2 small { font-size:1rem; font-weight:400; color:var(--muted); }
+  .level { font-size:.9rem; margin-bottom:8px; }
+  .good { color:var(--good); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+  .row { display:flex; gap:24px; font-size:1.3rem; }
+  .meta { color:var(--muted); font-size:.85rem; margin-top:10px; line-height:1.5; }
+</style>
+</head>
+<body>
+<h1>CO₂ Monitor</h1>
+<div id="error" class="notice" hidden>サーバーに接続できません。再試行しています…</div>
+<div id="empty" class="notice" hidden>まだデータを受信していません。デバイスが送信しているか確認してください。</div>
+<div id="devices"></div>
+
+<script>
+// 建築物衛生法の基準 1000ppm を目安に色分けする
+function level(ppm) {
+  if (ppm < 1000) return ["good", "良好"];
+  if (ppm < 1500) return ["warn", "換気推奨"];
+  return ["bad", "換気が必要"];
+}
+
+function fmtTime(iso) {
+  return new Date(iso).toLocaleString("ja-JP");
+}
+
+function render(devices) {
+  document.getElementById("empty").hidden = devices.length > 0;
+  const root = document.getElementById("devices");
+  root.replaceChildren(...devices.map(d => {
+    const [cls, label] = level(d.co2_ppm);
+    const card = document.createElement("div");
+    card.className = "card" + (d.stale ? " stale" : "");
+    card.innerHTML = `
+      <div class="head">
+        <span class="device"></span>
+        <span>
+          ${d.mock ? '<span class="badge mock">MOCK</span>' : ""}
+          ${d.stale ? '<span class="badge stale">更新なし</span>' : ""}
+        </span>
+      </div>
+      <div class="co2 ${cls}">${d.co2_ppm} <small>ppm</small></div>
+      <div class="level ${cls}">${label}</div>
+      <div class="row">
+        <span>🌡 ${d.temperature_c.toFixed(1)} °C</span>
+        <span>💧 ${d.humidity_pct.toFixed(1)} %</span>
+      </div>
+      <div class="meta">
+        最終受信: ${fmtTime(d.received_at)}<br>
+        アプリ: v<span class="version"></span>
+      </div>`;
+    card.querySelector(".device").textContent = d.device_id;
+    card.querySelector(".version").textContent = d.app_version;
+    return card;
+  }));
+}
+
+async function refresh() {
+  try {
+    const res = await fetch("/api/latest", { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    const body = await res.json();
+    document.getElementById("error").hidden = true;
+    render(body.devices);
+  } catch (e) {
+    document.getElementById("error").hidden = false;
+  }
+}
+
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>
