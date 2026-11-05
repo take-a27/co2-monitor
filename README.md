@@ -5,6 +5,8 @@ Raspberry Pi と CO₂ センサーで部屋の空気を測り、AWS IoT Core �
 
 センサーのはんだ付けから、I²C での通信、クラウドへの接続、遠隔配布までを一通り自分でやってみた記録。
 
+<img src="docs/images/ui.png" alt="スマホで見た画面" width="260">
+
 ## 1. 全体構成
 
 ![全体構成](docs/images/architecture.svg)
@@ -23,9 +25,10 @@ Raspberry Pi と CO₂ センサーで部屋の空気を測り、AWS IoT Core �
 センサーモジュールにピンヘッダーをはんだ付けし、ジャンパーワイヤーでラズパイの GPIO ヘッダーに挿した。
 
 <p>
-  <img src="docs/images/sensor.jpg" alt="ピンヘッダーをはんだ付けした SCD41 モジュール" width="32%">
-  <img src="docs/images/pi-header.jpg" alt="ラズパイの GPIO ヘッダーに挿したところ" width="32%">
-  <img src="docs/images/pi-header-closeup.jpg" alt="1・3・5・9 番ピンに挿したところ（拡大）" width="32%">
+  <img src="docs/images/sensor.jpg" alt="ピンヘッダーをはんだ付けした SCD41 モジュール" width="24%">
+  <img src="docs/images/sensor-back.jpg" alt="基板の裏のはんだ付け" width="24%">
+  <img src="docs/images/pi-header.jpg" alt="ラズパイの GPIO ヘッダーに挿したところ" width="24%">
+  <img src="docs/images/pi-header-closeup.jpg" alt="1・3・5・9 番ピンに挿したところ（拡大）" width="24%">
 </p>
 
 ![配線](docs/images/wiring.svg)
